@@ -1,0 +1,133 @@
+----------------------------------------------------------------
+			ESMERALDA Version 1.0
+
+Primary Authors:	Gernot A. Fink, Thomas Plötz
+Current Affiliation:	Robotics Research Institute,
+			University of Dortmund, Germany
+			www.is.irf.de
+----------------------------------------------------------------
+
+ESMERALDA --
+an integrated Environment for Statistical Model Estimation and
+Recognition on Arbitrary Linear Data Arrays -- is a development
+toolkit for building statistical recognizers operating on
+sequential data as e.g. speech, handwriting, or biological
+sequences. ESMERALDA primarily supports continuous density Hidden
+Markov Models (HMMs) of different topologies, and with user-definable
+internal structure. In order to represent long-term sequential
+restrictions HMMs can be complemented with Markov chain models
+(realized as statistical N-gram models). Gaussian mixture models
+(GMMs) can also be used independently for general classification
+tasks.
+
+The goal of the ESMERALDA system is to put together a tractable set of
+conceptually simple yet powerful techniques in an integrated
+development environment. The architecture of the system is organized
+around an incremental recognizer. Separate modules for estimating
+mixture density models in conjunction with HMMs and for building
+n-gram language models are provided. Technically, every module
+contains a library with an API as well as stand-alone programs for
+manipulating the appropriate models and assiciated data.
+
+The three fundamental modules, namely for mixture densities, HMMs and
+N-gram models provide the following methods:
+- Mixture densities: k-means and LBG-based unsupervised mixture
+estimation respectively, expectation maximization based model
+training, maximum a-posteriori adaptation, estimation of linear
+feature space transforms (PCA, LDA), efficient two-stage decoding
+- HMMs: declarative configuration language for building structured
+models from elementary units, initialization, training based
+on Baum-Welch reestimation, efficient Viterbi beam-search decoding,
+(semi-)supervised model adaptation (MLLR/MAP)
+- N-gramm: memory efficient estimation of N-gram statistics, N-gram
+estimation based on different smoothing techniques (most notably
+absolute discounting and backing-off/interpolation), efficient
+decoding of long-span models
+
+ESMERALDA was successfully applied to a number of challenging
+recognition problems in the field of automatic speech recognition,
+offline handwriting recognition and protein sequence analysis. 
+
+INSTALLATION
+------------
+
+In order to get ESMERALDA up and running in the following the necessary
+steps are described (for Linux operating system):
+
+  0.1	Create a master directory, e.g. '/vol/esmeralda', and there
+	sub-directories 'src,bin,lib,include' and 'man';
+
+  0.2	Set the environment variable ESMERALDA=/vol/esmeralda
+	(and optionally also set the path to include $ESMERALDA/bin)
+
+  0.3	Set the environment variable ARCH=linux
+	(this controls some operating system / architecture specific
+	 settings in $ESMERALDA/src/Makerules)
+
+  0.4	Set the environment variable POSIXLY_CORRECT=1
+	(Important for Linux: Otherwise Linux sorts command lines such
+	 that options will be shuffled to the beginning. As, however,
+	 tools like 'isr' or 'md_param' use complex command lines with
+	 several option sections they will not work porperly and generate
+	 strange sounding error messages related to option processing)
+
+
+  1.1	Unpack the sources in $ESMERALDA/src
+
+	ATTENTION:
+		The individual modules in $ESMERALDA/src only build on
+		top of each other. However, during development they are
+		completely independent. Therefore, when installing ESMERALDA
+		for the first time - unfortunately - a simle 'make' in
+		$ESMERALDA/src is not sufficient as the libraries of the
+		required modules were not installed yet. If everything
+		is set up properly, a global 'make install' will, however, work.
+
+  1.2	(just to make sure ;-) first try in the most elementary moduls 'rs' a
+
+		make
+
+	and in case of success a
+
+		make install
+
+	(will install 'librs.a' to $ESMERALDA/lib and several include
+	 files to $ESMERALDA/include/rs)
+
+  1.3	(if that worked out fine) bravely issue in $ESMERALDA/src a
+
+		make install
+
+
+  2.0.	In order to perform a first simle check whether everything worked
+	out properly you can issue a call to the "incremental speech recognizer"
+
+		isr -V
+
+	which then will report it's current version number and the
+	version number of all the (ESMERALDA) libraries it uses.
+
+	This should look similar to
+
+	isr version 2.96 (lm 2.12, grm 2.01c, md 2.01, dsp 1.60, mx 1.23c)
+	usage: isr [<option> ...] <swu> <lex> <tree> [LM] [CL] [AA] [FE] [SR]
+
+
+	Good Luck!
+
+LICENSE
+-------
+
+ESMERALDA is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License.
+
+ESMERALDA is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA

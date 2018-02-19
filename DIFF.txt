@@ -1,0 +1,97 @@
+diff -ruw dsp/mfcc_1_4.c esmeralda/dsp/lib/mfcc_1_4.c
+--- dsp/mfcc_1_4.c	2018-02-16 17:23:29.076477718 +0100
++++ esmeralda/dsp/lib/mfcc_1_4.c	2007-05-07 10:42:22.000000000 +0200
+@@ -14,8 +14,6 @@
+ **/
+ 
+ #include <rs/memory.h>
+-#include <rs/io.h>
+-#include <rs/messages.h>
+ 
+ #define DSP_KERNEL
+ #include "mfcc_1_4.h"
+@@ -68,12 +66,11 @@
+ 	if (!params || rs_line_is_empty(params)) {
+ 		ch = channel + 0;
+ 
+-/*		rs_warning("no channel type for MFCCs v%d.%d given"
++		rs_warning("no channel type for MFCCs v%d.%d given"
+ 			" - using '%s'!",
+ 			DSP_VERSION_MAJOR(fex->version),
+ 			DSP_VERSION_MINOR(fex->version),
+             ch->name);
+-*/
+         }
+ 	else	{
+ 		for (i = 0; i < V1_4_N_PARAM_DEFAULTS; i++) {
+@@ -115,11 +112,16 @@
+ ********/
+ 		}
+ 
++	cfg->channel = dsp_channel_init(V1_1_N_BASEFEATURES,
++				0, V1_4_CEP_WLENGTH, V1_4_CEP_WLENGTH, 0, 0,
++				ch->param);
++#ifdef __USE_THE_NEW_METHODOLOGY_WHICH_WILL_GIVE_SLIGHTLY_DIFFERENT_RESULTS
+     cfg->channel = dsp_channel_create(V1_4_N_CH_PARAMS);
+ 	dsp_channel_configure(cfg->channel,
+ 			/* {t, t_min, t_max} = */
+ 			0, V1_4_CEP_WLENGTH, V1_4_CEP_WLENGTH,
+ 			ch->param + V1_4_N_CFG_PARAMS);
++#endif
+ 
+ 	/* ... zusaetzlich Energiehistogramm initialisieren */
+ 	cfg->ehist = mx_histogram_create(V1_4_EN_HIST_MIN,
+@@ -130,7 +132,7 @@
+ 
+ 	/* ... und VAD-Schwellwert speichern */
+ 	cfg->vad_threshold = ch->param[0];
+-    //rs_msg("vad_threshold set to %g.", cfg->vad_threshold);
++rs_msg("vad_threshold set to %g.", cfg->vad_threshold);
+ 
+ 	return(0);
+ 	}
+diff -ruw dsp/mfcc.c esmeralda/dsp/lib/mfcc.c
+--- dsp/mfcc.c	2018-02-12 17:03:31.489320839 +0100
++++ esmeralda/dsp/lib/mfcc.c	2007-05-07 10:49:11.000000000 +0200
+@@ -36,7 +36,6 @@
+ 
+ #define DSP_KERNEL
+ #include "mfcc.h"
+-#include "mfcc_1_4.h"
+ 
+ /* Konstantendefinitionen fuer ... */
+ /* ... Merkmalsberechnung V1.1: */
+Nur in esmeralda/dsp/lib/: __program.o.
+diff -ruw dsp/sdft.c esmeralda/dsp/lib/sdft.c
+--- dsp/sdft.c	2018-02-12 17:03:57.813002857 +0100
++++ esmeralda/dsp/lib/sdft.c	2004-03-19 16:00:05.000000000 +0100
+@@ -18,7 +18,7 @@
+  * Local Variables
+  */
+ static mx_complex_t *w = NULL;	/* unit root for n-point DFT */
+-static int last_n = -1;		/* last DFT length used */
++static last_n = -1;		/* last DFT length used */
+ 
+ /*
+  * Local Prototypes
+diff -ruw dsp/vad.c esmeralda/dsp/lib/vad.c
+--- dsp/vad.c	2018-02-12 17:09:16.046734092 +0100
++++ esmeralda/dsp/lib/vad.c	2004-06-25 09:00:38.000000000 +0200
+@@ -179,7 +179,7 @@
+ 		}
+ 
+ 	/* ... ggf. verzoegerten Frame zur Verarbeitung zurueckgeben ... */
+-    if (dsp_delay_topm(NULL, (void*)&mark, vad->sigbuf) < 0)
++	if (dsp_delay_topm(NULL, &mark, vad->sigbuf) < 0)
+ 		return(-1);
+ 
+ 	/* ... Pause ... */
+@@ -248,7 +248,7 @@
+ 		 * nach neu berechmetem Zustand ummarkieren
+ 		 */
+ 		for (i = 0; i < vad->sigbuf->length; i++) {
+-            if (dsp_delay_accessm(NULL, (void*)&mark, vad->sigbuf, i) < 0)
++			if (dsp_delay_accessm(NULL, &mark, vad->sigbuf, i) < 0)
+ 				break;
+ 
+ 			if (mark != dsp_vad_starting)
